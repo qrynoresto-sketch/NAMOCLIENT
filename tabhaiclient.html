@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decked Up, Jaipur</title>
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles and animations */
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        .title-font { font-family: 'Playfair Display', serif; }
+        .page { animation: fadeIn 0.5s ease-in-out; }
+        
+        /* Keyframes */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(251, 191, 36, 0); }
+        }
+        @keyframes jiggle {
+            0%, 100% { transform: rotate(-1deg) translateY(-1px); }
+            50% { transform: rotate(1deg) translateY(1px); }
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(30px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        
+        .btn-pulse { animation: pulse 2.5s infinite cubic-bezier(0.66, 0, 0, 1); }
+        .crazy-hover:hover { animation: jiggle 0.4s infinite; }
+        .modal-content { animation: slideInUp 0.3s ease-out forwards; }
+        
+        /* Performance-Optimized Slideshow Styles */
+        #slideshow-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            will-change: opacity; /* GPU acceleration hint */
+        }
+        #slideshow-container img.active {
+            opacity: 1;
+        }
+
+        .animate-on-scroll { opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; will-change: transform, opacity; }
+        .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+        
+        .loader { width: 50px; height: 50px; border: 5px solid #4b5563; border-bottom-color: #fbbf24; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        #game-canvas { border: 2px solid #4b5563; border-radius: 8px; background-color: #111827; cursor: pointer; }
+        .game-btn.game-active { border-color: #fbbf24 !important; background-color: #374151; color: #fbbf24; }
+        .category-navigator::-webkit-scrollbar { display: none; }
+        .category-navigator { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-black to-black text-white h-full overflow-hidden">
+
+    <!-- App Container -->
+    <div id="app" class="h-full">
+
+        <!-- SLIDESHOW LANDING PAGE -->
+        <div id="page-landing" class="page h-full flex flex-col justify-center items-center text-center p-8 relative">
+            <div id="slideshow-container" class="absolute inset-0 z-0"></div>
+             <div class="bg-black bg-opacity-60 p-8 md:p-12 rounded-2xl shadow-2xl relative z-10">
+                <h1 id="landing-title" class="title-font text-5xl md:text-7xl font-bold mb-4 text-amber-300">Welcome</h1>
+                <p class="text-xl md:text-2xl text-gray-200 mb-8">Jaipur's Finest Rooftop Experience.</p>
+                <button data-action="showPage" data-page="welcome" class="bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-lg py-4 px-10 rounded-full shadow-lg transition-transform duration-300 btn-pulse active:scale-95">
+                    ENTER
+                </button>
+            </div>
+        </div>
+
+        <!-- AI HOST WELCOME PAGE -->
+        <div id="page-welcome" class="page hidden h-full flex flex-col justify-center items-center p-4">
+             <div id="table-info" class="absolute top-4 right-4 bg-gray-800 text-amber-300 font-semibold px-4 py-2 rounded-lg text-sm shadow-lg">Table: Loading...</div>
+            <div class="text-center">
+                <div class="w-48 h-48 md:w-64 md:h-64 mx-auto mb-6 rounded-full overflow-hidden bg-gray-800 shadow-2xl border-4 border-amber-300 transition-transform duration-500 hover:scale-105 relative">
+                    <video id="ai-host-video" class="w-full h-full object-cover absolute top-0 left-0" playsinline></video>
+                    <img id="ai-host-static-image" src="" alt="AI Host" class="w-full h-full object-cover hidden absolute top-0 left-0">
+                </div>
+                <h2 class="title-font text-3xl md:text-4xl font-bold mb-2 text-amber-300">Welcome!</h2>
+                <p id="welcome-message" class="text-gray-300 text-lg mb-8 max-w-md mx-auto">I am your virtual host. How may I assist you today?</p>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 w-full max-w-4xl">
+                <button data-action="showPage" data-page="menu" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-6 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-10 h-10 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><span class="font-semibold pointer-events-none">Menu</span></button>
+                <button data-action="showPage" data-page="games" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-6 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-10 h-10 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 9.5l-5 5m0-5l5 5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-semibold pointer-events-none">Games</span></button>
+                <button data-action="showPage" data-page="offers" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-6 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-10 h-10 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="font-semibold pointer-events-none">Offers</span></button>
+                <button data-action="showPage" data-page="review" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-6 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-10 h-10 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span class="font-semibold pointer-events-none">Review</span></button>
+                <button data-action="showPage" data-page="faq" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-6 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-10 h-10 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span class="font-semibold pointer-events-none">FAQ</span></button>
+            </div>
+        </div>
+        
+        <!-- MENU PAGE -->
+        <div id="page-menu" class="page hidden h-full flex flex-col p-0">
+             <header class="flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-20 shadow-md">
+                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700 active:scale-90 transition-transform"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="title-font text-2xl font-bold text-amber-300">Our Menu</h2>
+                <div id="table-info-menu" class="bg-gray-800 text-amber-300 font-semibold px-3 py-1.5 rounded-lg text-sm">Table: ...</div>
+            </header>
+            <nav id="category-navigator-container" class="sticky top-[72px] bg-slate-900 z-20 p-2 shadow-md">
+                <div id="category-navigator" class="category-navigator flex items-center gap-2 overflow-x-auto whitespace-nowrap"></div>
+            </nav>
+            <div id="menu-content" class="flex-grow overflow-y-auto pb-24 px-4 space-y-4">
+                 <div class="flex justify-center items-center h-full"><div class="loader"></div></div>
+            </div>
+            <div class="absolute bottom-6 right-6 z-30">
+                <button id="cart-button" data-action="toggleCart" class="relative bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold p-4 rounded-full shadow-2xl transition-transform transform hover:scale-110 duration-300 active:scale-100"><svg class="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg><span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full hidden">0</span></button>
+            </div>
+        </div>
+        
+        <!-- Other pages remain structurally the same -->
+        <div id="page-games" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900 sticky top-0 z-20 shadow-md"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Games</h2></header><div class="flex-grow overflow-y-auto p-6 flex flex-col items-center"><div id="game-selector" class="flex flex-wrap justify-center gap-2 mb-4"><button data-action="loadGame" data-game="tic-tac-toe" class="game-btn border-2 border-gray-600 px-4 py-2 rounded-lg">Tic-Tac-Toe</button><button data-action="loadGame" data-game="brick-breaker" class="game-btn border-2 border-gray-600 px-4 py-2 rounded-lg">Brick Breaker</button><button data-action="loadGame" data-game="memory" class="game-btn border-2 border-gray-600 px-4 py-2 rounded-lg">Memory Game</button></div><canvas id="game-canvas" width="400" height="400"></canvas><p id="game-instructions" class="text-center text-gray-400 mt-4 text-sm h-5"></p></div></div>
+        <div id="page-invoice" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900 sticky top-0 z-20 shadow-md"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Order Summary</h2></header><div id="invoice-content" class="flex-grow overflow-y-auto p-6"></div></div>
+        <div id="page-review" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Review & Suggestions</h2></header><div class="flex-grow overflow-y-auto p-6 space-y-4"><p class="text-center text-gray-300">We value your feedback!</p><div class="space-y-4 max-w-lg mx-auto"><input id="review-name" type="text" placeholder="Your Name (Optional)" class="w-full bg-gray-800 p-3 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400"><textarea id="review-content" placeholder="Your experience, suggestions, etc..." rows="5" class="w-full bg-gray-800 p-3 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400"></textarea><button data-action="submitReview" class="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-3 rounded-lg transition-colors">Submit</button></div></div></div>
+        <div id="page-offers" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Special Offers</h2></header><div id="offers-content" class="flex-grow p-6 space-y-4"></div></div>
+        <div id="page-faq" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">About & FAQ</h2></header><div class="flex-grow p-6 space-y-4"><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">What kind of restaurant is this?</h3><p id="faq-restaurant-name" class="text-gray-400 mt-1"></p></div><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">Where are you located?</h3><p class="text-gray-400 mt-1">You can find us at the Rooftop, 4th Floor, The Terrace, B-40, Gautam Marg, Vaishali Nagar, Jaipur.</p></div><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">Do you take reservations?</h3><p class="text-gray-400 mt-1">Yes, we highly recommend making a reservation, especially for weekends. You can call us or book through our official website.</p></div><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">Is there parking available?</h3><p class="text-gray-400 mt-1">Yes, valet parking is available for all our guests.</p></div></div></div>
+        
+        <!-- Cart Modal -->
+        <div id="cart-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-40 flex items-center justify-center p-4"><div class="bg-gray-800 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl modal-content"><div class="flex justify-between items-center p-4 border-b border-gray-700"><h3 class="title-font text-xl font-bold text-amber-300">Your Order</h3><button data-action="toggleCart" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="cart-items" class="flex-grow overflow-y-auto p-4 space-y-3"></div><div class="p-4 border-t border-gray-700"><div class="flex justify-between items-center font-bold text-lg mb-4"><span class="text-gray-300">Total:</span><span id="cart-total" class="text-amber-300">₹0.00</span></div><button id="place-order-btn" data-action="placeOrder" class="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-3 rounded-lg transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">Place Order</button></div></div></div>
+                
+        <!-- Custom Alert Modal -->
+        <div id="alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4"><div class="bg-gray-800 rounded-2xl w-full max-w-sm p-8 text-center shadow-2xl modal-content"><p id="alert-message" class="text-lg mb-6"></p><button data-action="hideCustomAlert" class="bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-2 px-8 rounded-lg">OK</button></div></div>
+    </div>
+
+    <script type="module">
+        // --- SUPABASE & APP CONFIG ---
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+        const SUPABASE_URL = 'https://xuneoezzbcmryywdjean.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1bmVvZXp6YmNtcnl5d2RqZWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMzE4NzIsImV4cCI6MjA3NDgwNzg3Mn0.e7hu6m0eKq8PpI78fMsMHujGF1tIh518n2G1motw788';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- APPLICATION STATE ---
+        const state = {
+            currentPage: 'landing', tableId: null, tableName: 'N/A', order: [], menu: [], menuItemsMap: new Map(),
+            activeGame: null, gameInterval: null, gameCleanup: null,
+            aiHostVideoUrl: null, aiHostStaticImageUrl: null, slideshowImages: [], slideshowInterval: null
+        };
+        
+        // --- DOM Elements ---
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        // --- RENDER FUNCTIONS (Efficiently update the DOM) ---
+        function renderMenuItemControls(itemId) {
+            const container = $(`#controls-${itemId}`);
+            if (!container) return;
+            const orderItem = state.order.find(i => i.id === itemId);
+            if (orderItem) {
+                container.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <button data-action="changeQuantity" data-item-id="${itemId}" data-amount="-1" class="w-10 h-10 bg-gray-600 rounded-full font-bold text-2xl flex items-center justify-center active:scale-90 transition-transform">-</button>
+                        <span class="font-bold w-10 text-center text-xl">${orderItem.quantity}</span>
+                        <button data-action="changeQuantity" data-item-id="${itemId}" data-amount="1" class="w-10 h-10 bg-gray-600 rounded-full font-bold text-2xl flex items-center justify-center active:scale-90 transition-transform">+</button>
+                    </div>`;
+            } else {
+                container.innerHTML = `<button data-action="addToOrder" data-item-id="${itemId}" class="bg-amber-400 text-gray-900 font-bold px-6 py-2 rounded-lg hover:bg-amber-500 transition-transform transform hover:scale-105 active:scale-95">Add</button>`;
+            }
+        }
+        
+        function updateCart() {
+            const cartItemsContainer = $('#cart-items');
+            const cartCountEl = $('#cart-count');
+            const cartTotalEl = $('#cart-total');
+            const placeOrderBtn = $('#place-order-btn');
+            let total = 0, count = 0;
+
+            const cartItemsHtml = state.order.map(orderItem => {
+                const menuItem = state.menuItemsMap.get(orderItem.id);
+                if (!menuItem) return '';
+                total += menuItem.price * orderItem.quantity;
+                count += orderItem.quantity;
+                return `
+                    <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+                        <div><p class="font-semibold">${menuItem.name}</p><p class="text-sm text-gray-400">₹${menuItem.price}</p></div>
+                        <div class="flex items-center gap-3">
+                            <button data-action="changeQuantity" data-item-id="${orderItem.id}" data-amount="-1" class="w-7 h-7 bg-gray-600 rounded-full font-bold active:scale-90 transition-transform">-</button>
+                            <span class="font-semibold w-5 text-center">${orderItem.quantity}</span>
+                            <button data-action="changeQuantity" data-item-id="${orderItem.id}" data-amount="1" class="w-7 h-7 bg-gray-600 rounded-full font-bold active:scale-90 transition-transform">+</button>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            if (count === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-gray-400 text-center">Your cart is empty.</p>';
+                placeOrderBtn.disabled = true;
+            } else {
+                cartItemsContainer.innerHTML = cartItemsHtml;
+                placeOrderBtn.disabled = false;
+            }
+            cartCountEl.textContent = count;
+            cartCountEl.classList.toggle('hidden', count === 0);
+            cartTotalEl.textContent = `₹${total.toFixed(2)}`;
+        }
+        
+        // --- CORE APP LOGIC ---
+        function showPage(pageId) {
+            if (state.gameInterval) { clearInterval(state.gameInterval); state.gameInterval = null; }
+            if (typeof state.gameCleanup === 'function') { state.gameCleanup(); state.gameCleanup = null; }
+            if (state.slideshowInterval) { clearInterval(state.slideshowInterval); state.slideshowInterval = null; }
+            state.activeGame = null;
+            window.speechSynthesis.cancel();
+            $('#ai-host-video').pause();
+
+            $$('.page').forEach(p => p.classList.add('hidden'));
+            const newPage = $(`#page-${pageId}`);
+            if (newPage) {
+                newPage.classList.remove('hidden');
+                state.currentPage = pageId;
+                if (pageId === 'landing') startSlideshow();
+                if (pageId === 'welcome') playAIHostSequence();
+                if (pageId === 'menu' && state.menu.length === 0) fetchAndRenderMenu();
+                if (pageId === 'games') loadGame('tic-tac-toe');
+                if (pageId === 'offers') fetchAndRenderOffers();
+            }
+        }
+
+        async function fetchAndRenderMenu() {
+            const menuContent = $('#menu-content');
+            const categoryNav = $('#category-navigator');
+            menuContent.innerHTML = `<div class="flex justify-center items-center h-full"><div class="loader"></div></div>`;
+            categoryNav.innerHTML = '';
+            
+            const { data, error } = await supabase.from('categories').select(`*, items(*)`).order('created_at');
+            
+            if (error) { console.error("Supabase error fetching menu:", error); menuContent.innerHTML = `<p class="text-center p-8 text-red-400">Could not load the menu. Please try again later.</p>`; return; }
+            if (!data || data.length === 0) { menuContent.innerHTML = `<p class="text-center p-8 text-gray-400">The menu is currently empty. Please check back soon!</p>`; return; }
+            state.menu = data;
+            state.menuItemsMap = new Map(data.flatMap(c => c.items).map(item => [item.id, item]));
+            
+            const menuHtml = data.map(category => {
+                if (category.items.length === 0) return '';
+                const itemsHtml = category.items.map(item => {
+                    const imageUrl = item.image_url || `https://placehold.co/600x400/374151/ffffff?text=${encodeURIComponent(item.name)}`;
+                    
+                    return `
+                        <div class="bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col relative animate-on-scroll transition-all duration-300 hover:shadow-amber-500/10 hover:shadow-2xl hover:-translate-y-1">
+                            <img src="${imageUrl}" alt="${item.name}" class="w-full h-48 object-cover" loading="lazy" decoding="async">
+                            <div class="p-4 flex flex-col flex-grow">
+                                <div data-action="speakMenuItem" data-item-id="${item.id}" class="cursor-pointer group">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-bold text-xl text-white group-hover:text-amber-300 transition-colors">${item.name}</h4>
+                                        <svg class="w-5 h-5 text-gray-500 group-hover:text-amber-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.108 12 5v14c0 .892-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                                    </div>
+                                    <p class="text-gray-400 text-sm my-2 flex-grow pointer-events-none">${item.description || ''}</p>
+                                </div>
+                                <div class="flex justify-between items-center mt-4">
+                                    <span class="font-bold text-2xl text-amber-300">₹${item.price}</span>
+                                    <div id="controls-${item.id}"></div>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+                return `<div id="category-${category.id}"><h3 class="title-font text-3xl font-bold text-amber-300 pt-6 pb-4">${category.name}</h3><div class="grid grid-cols-1 lg:grid-cols-2 gap-6">${itemsHtml}</div></div>`;
+            }).join('');
+            
+            categoryNav.innerHTML = data.map(c => c.items.length > 0 ? `<a href="#category-${c.id}" class="px-4 py-2 bg-gray-800 rounded-full text-sm font-semibold hover:bg-amber-400 hover:text-gray-900 transition-colors active:scale-95">${c.name}</a>` : '').join('');
+            menuContent.innerHTML = menuHtml;
+            state.menuItemsMap.forEach(item => renderMenuItemControls(item.id));
+            setupScrollAnimations();
+        }
+
+        // --- EVENT HANDLERS (Actions) ---
+        const actions = {
+            showPage: el => showPage(el.dataset.page),
+            toggleCart: () => {
+                $('#cart-modal').classList.toggle('hidden');
+            },
+            hideCustomAlert: () => $('#alert-modal').classList.add('hidden'),
+            
+            addToOrder: el => {
+                const itemId = el.dataset.itemId;
+                state.order.push({ id: itemId, quantity: 1 });
+                updateCart();
+                renderMenuItemControls(itemId);
+                $('#cart-button').classList.add('animate-bounce');
+                setTimeout(() => $('#cart-button').classList.remove('animate-bounce'), 1000);
+            },
+            
+            changeQuantity: el => {
+                const itemId = el.dataset.itemId;
+                const amount = parseInt(el.dataset.amount);
+                const orderItem = state.order.find(i => i.id === itemId);
+                if (!orderItem) return;
+                orderItem.quantity += amount;
+                if (orderItem.quantity <= 0) state.order = state.order.filter(i => i.id !== itemId);
+                updateCart();
+                renderMenuItemControls(itemId);
+            },
+            
+            speakMenuItem: el => {
+                const itemId = el.dataset.itemId;
+                const item = state.menuItemsMap.get(itemId);
+                if (item) {
+                    const textToSpeak = `${item.name}. ${item.description || ''}`;
+                    speakMessage(textToSpeak);
+                }
+            },
+            
+            placeOrder: () => placeOrder(),
+            submitReview: () => submitReview(),
+            loadGame: el => loadGame(el.dataset.game),
+        };
+
+        // --- DYNAMIC CONTENT & UI ---
+        async function fetchInitialData() {
+            const { data: settingsData, error: settingsError } = await supabase.from('settings').select('*').limit(1).single();
+            if (settingsError) throw new Error("Could not fetch app settings.");
+
+            $('#welcome-message').textContent = settingsData.welcome_message || 'Welcome!';
+            $('#landing-title').textContent = settingsData.name || 'Welcome';
+            $('#faq-restaurant-name').textContent = `We are ${settingsData.name || 'a premium multi-cuisine rooftop lounge'} known for our vibrant ambiance, live music, and delicious food.`;
+            state.aiHostVideoUrl = null; 
+            state.aiHostStaticImageUrl = null;
+            
+            const { data: slideData, error: slideError } = await supabase.from('slideshow_images').select('image_url').order('created_at');
+            if(slideError) console.error("Could not fetch slideshow images.");
+            state.slideshowImages = slideData ? slideData.map(s => s.image_url) : [];
+        }
+
+        async function fetchAndRenderOffers() {
+            const offersContent = $('#offers-content');
+            offersContent.innerHTML = `<div class="flex justify-center items-center h-full"><div class="loader"></div></div>`;
+            const { data, error } = await supabase.from('offers').select('*').eq('is_active', true).order('created_at');
+            if (error) {
+                offersContent.innerHTML = `<p class="text-red-400">Could not load offers.</p>`;
+                return;
+            }
+            if(!data || data.length === 0) {
+                 offersContent.innerHTML = `<p class="text-gray-400 text-center">No special offers at the moment. Please check back later!</p>`;
+                 return;
+            }
+
+            offersContent.innerHTML = data.map(offer => `
+                <div class="bg-gray-800 p-6 rounded-xl border-l-4 border-amber-400 animate-on-scroll">
+                    <h3 class="font-bold text-xl text-amber-300">${offer.title}</h3>
+                    <p class="text-gray-300 mt-2">${offer.description}</p>
+                </div>
+            `).join('');
+            setupScrollAnimations();
+        }
+        
+        function startSlideshow() {
+            if (state.slideshowImages.length === 0) return;
+            const container = $('#slideshow-container');
+            container.innerHTML = state.slideshowImages.map(url => `<img src="${url}">`).join('');
+            const images = container.querySelectorAll('img');
+            if (images.length === 0) return;
+            let currentIndex = 0;
+            images[currentIndex].classList.add('active');
+
+            state.slideshowInterval = setInterval(() => {
+                images[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % images.length;
+                images[currentIndex].classList.add('active');
+            }, 5000);
+        }
+
+        function playAIHostSequence() {
+            const videoEl = $('#ai-host-video');
+            const imageEl = $('#ai-host-static-image');
+            
+            imageEl.src = 'https://placehold.co/256x256/374151/ffffff?text=Host';
+            imageEl.classList.remove('hidden');
+            videoEl.classList.add('hidden');
+            speakMessage($('#welcome-message').textContent);
+        }
+
+        // --- INITIALIZATION ---
+        $('#app').addEventListener('click', e => {
+            const actionElement = e.target.closest('[data-action]');
+            if (actionElement) {
+                const action = actionElement.dataset.action;
+                if (actions[action]) {
+                    actions[action](actionElement);
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            state.tableId = params.get('table_id');
+            if (!state.tableId) {
+                showCustomAlert("Error: Invalid table URL. Please scan a QR code from your table.");
+                return;
+            }
+
+            const { data: tableData, error: tableError } = await supabase.from('tables').select('name').eq('id', state.tableId).single();
+            if (tableError || !tableData) {
+                 showCustomAlert("Error: This table is not recognized. Please ask staff for assistance.");
+                 return;
+            }
+            state.tableName = tableData.name;
+            
+            $('#table-info').textContent = `Table: ${state.tableName}`;
+            $('#table-info-menu').textContent = `Table: ${state.tableName}`;
+            
+            try {
+                await fetchInitialData();
+                showPage('landing');
+            } catch (error) {
+                console.error("Error during initial data load:", error);
+                showCustomAlert("Could not load restaurant information. Please try refreshing.");
+            }
+        });
+
+        // --- All other functions (games, admin, etc.) are collapsed for brevity ---
+        function speakMessage(text) { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; utterance.rate = 0.9; window.speechSynthesis.speak(utterance); }
+        function setupScrollAnimations() { const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('is-visible'); }); }, { threshold: 0.1 }); $$('.animate-on-scroll').forEach(el => observer.observe(el)); }
+        function renderInvoice(orderId, total) { const itemsHtml = state.order.map(item => { const menuItem = state.menuItemsMap.get(item.id); return `<div class="flex justify-between text-gray-300 py-2 border-b border-gray-700"><span>${item.quantity} x ${menuItem.name}</span><span>₹${(item.quantity * menuItem.price).toFixed(2)}</span></div>` }).join(''); $('#invoice-content').innerHTML = `<div class="bg-gray-800 p-6 rounded-lg"><h3 class="text-2xl font-bold text-center mb-4">Thank You!</h3><p class="text-center text-gray-400 mb-6">Order #${orderId.substring(0, 8)} for Table ${state.tableName}</p><div class="space-y-2">${itemsHtml}</div><div class="flex justify-between font-bold text-xl mt-6 pt-4 border-t-2 border-amber-400"><span>Total</span><span>₹${total.toFixed(2)}</span></div></div>`; }
+        function showCustomAlert(message) { $('#alert-message').textContent = message; $('#alert-modal').classList.remove('hidden'); }
+        async function placeOrder() { 
+            if (state.order.length === 0) return; 
+
+            const subtotal = state.order.reduce((sum, item) => sum + state.menuItemsMap.get(item.id).price * item.quantity, 0);
+            
+            const order_details = {
+                items: state.order.map(item => ({
+                    id: item.id,
+                    name: state.menuItemsMap.get(item.id).name,
+                    price: state.menuItemsMap.get(item.id).price,
+                    quantity: item.quantity
+                })),
+                subtotal: subtotal,
+                taxes: [],
+                total: subtotal
+            };
+
+            const { data, error } = await supabase.from('orders').insert({ 
+                table_id: state.tableId,
+                order_details: order_details,
+                status: 'pending',
+                payment_status: 'pending'
+            }).select().single();
+
+            if (error) { 
+                console.error(error);
+                showCustomAlert('Could not place order. Please try again.'); 
+                return; 
+            } 
+            
+            actions.toggleCart(); 
+            renderInvoice(data.id, order_details.total); 
+            showPage('invoice'); 
+            const orderedItemIds = state.order.map(i => i.id); 
+            state.order = []; 
+            updateCart(); 
+            orderedItemIds.forEach(renderMenuItemControls); 
+        }
+        async function submitReview() { showCustomAlert('This feature is coming soon!'); }
+        function loadGame(gameName) { if (state.gameInterval) clearInterval(state.gameInterval); if (typeof state.gameCleanup === 'function') state.gameCleanup();$$('.game-btn').forEach(b => b.classList.remove('game-active')); const btn = $(`[data-game="${gameName}"]`); if(btn) btn.classList.add('game-active'); state.activeGame = gameName; const canvas = $('#game-canvas'); const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); $('#game-instructions').textContent = ''; const games = { 'tic-tac-toe': gameTicTacToe, 'brick-breaker': gameBrickBreaker, 'memory': gameMemory }; if (games[gameName]) games[gameName](canvas, ctx);}
+        function gameTicTacToe(c,x) { let b=['','','','','','','','',''],p='X',g=false,s=c.width/3;function d(){x.clearRect(0,0,c.width,c.height);x.strokeStyle='#4b5563';x.lineWidth=5;for(let i=1;i<3;i++){x.beginPath();x.moveTo(i*s,0);x.lineTo(i*s,c.height);x.moveTo(0,i*s);x.lineTo(c.width,i*s);x.stroke();} x.font='bold 80px Inter';x.textAlign='center';x.textBaseline='middle';for(let i=0;i<9;i++){const X=(i%3)*s+s/2,Y=Math.floor(i/3)*s+s/2;x.fillStyle=(b[i]==='X'?'#fbbf24':'#9ca3af');x.fillText(b[i],X,Y);}} function w(){const l=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(let i of l)if(b[i[0]]&&b[i[0]]===b[i[1]]&&b[i[0]]===b[i[2]])return b[i[0]];return b.includes('')?null:'Draw';} function h(e){if(g){gameTicTacToe(c,x);return;} const r=c.getBoundingClientRect(),X=e.clientX-r.left,Y=e.clientY-r.top,C=Math.floor(X/s),R=Math.floor(Y/s),i=R*3+C;if(b[i]===''){b[i]=p;const W=w();if(W){g=true;setTimeout(()=>showCustomAlert(W==='Draw'?"It's a draw!":`Player ${W} wins!`),100);}else{p=p==='X'?'O':'X';} d();}} c.addEventListener('click',h);state.gameCleanup=()=>c.removeEventListener('click',h);d();$('#game-instructions').textContent = 'Click to play. First to 3 in a row wins.'; }
+        function gameBrickBreaker(c,x) { let b={x:c.width/2,y:c.height-30,r:10,dx:2,dy:-2},p={x:c.width/2-40,y:c.height-10,w:80,h:10},B=[],s=0,l=3;for(let C=0;C<5;C++)for(let R=0;R<3;R++)B.push({x:C*(75+10)+30,y:R*(20+10)+30,w:75,h:20,s:1});function d(){x.clearRect(0,0,c.width,c.height);x.fillStyle='#fbbf24';x.beginPath();x.arc(b.x,b.y,b.r,0,Math.PI*2);x.fill();x.fillStyle='#9ca3af';x.fillRect(p.x,p.y,p.w,p.h);x.fillStyle='#4b5563';B.forEach(br=>{if(br.s===1)x.fillRect(br.x,br.y,br.w,br.h);});x.font='16px Inter';x.fillStyle='#fbbf24';x.fillText(`Score: ${s}`,8,20);x.fillText(`Lives: ${l}`,c.width-65,20);} function u(){if(b.x+b.dx>c.width-b.r||b.x+b.dx<b.r)b.dx=-b.dx;if(b.y+b.dy<b.r)b.dy=-b.dy;else if(b.y+b.dy>c.height-b.r){if(b.x>p.x&&b.x<p.x+p.w)b.dy=-b.dy;else{l--;if(!l){showCustomAlert(`Game Over! Final Score: ${s}`);clearInterval(state.gameInterval);}else{r();}}} B.forEach(br=>{if(br.s===1&&b.x>br.x&&b.x<br.x+br.w&&b.y>br.y&&b.y<br.y+br.h){b.dy=-b.dy;br.s=0;s++;if(s===B.length){showCustomAlert('You Win!');clearInterval(state.gameInterval);}}});b.x+=b.dx;b.y+=b.dy;} function r(){b.x=c.width/2;b.y=c.height-30;p.x=c.width/2-40;} function m(e){let R=e.clientX-c.getBoundingClientRect().left;if(R>0&&R<c.width)p.x=R-p.w/2;} document.addEventListener('mousemove',m);state.gameCleanup=()=>document.removeEventListener('mousemove',m);state.gameInterval=setInterval(()=>{u();d();},10);$('#game-instructions').textContent = 'Move your mouse to control the paddle.'; }
+        function gameMemory(c,x) { let C=[],f=[],m=0,F=true;const S=['🍕','🍔','🍟','🌭','🍿','🍩','🍪','🍰'],cs=80,g=20,cl=4,rw=4,tW=cl*cs+(cl-1)*g,oX=(c.width-tW)/2;let G=[...S,...S].sort(()=>0.5-Math.random());for(let i=0;i<G.length;i++)C.push({v:G[i],x:oX+(i%cl)*(cs+g),y:50+Math.floor(i/cl)*(cs+g),f:false,m:false});function d(){x.clearRect(0,0,c.width,c.height);x.font='50px Inter';x.textAlign='center';x.textBaseline='middle';C.forEach(cd=>{x.fillStyle=cd.m?'#111827':(cd.f?'#fbbf24':'#4b5563');x.fillRect(cd.x,cd.y,cs,cs);if(cd.f)x.fillText(cd.v,cd.x+cs/2,cd.y+cs/2);});} function h(e){if(!F)return;const r=c.getBoundingClientRect(),X=e.clientX-r.left,Y=e.clientY-r.top;const cd=C.find(ca=>!ca.f&&X>ca.x&&X<ca.x+cs&&Y>ca.y&&Y<ca.y+cs);if(cd&&f.length<2){cd.f=true;f.push(cd);if(f.length===2){F=false;setTimeout(()=>{if(f[0].v===f[1].v){f.forEach(ca=>ca.m=true);m++;if(m===S.length)showCustomAlert('You Win!');}else{f.forEach(ca=>ca.f=false);} f=[];F=true;d();},1000);} d();}} c.addEventListener('click',h);state.gameCleanup=()=>c.removeEventListener('click',h);d();$('#game-instructions').textContent = 'Click to flip cards. Find all matching pairs.'; }
+    </script>
+</body>
+</html>
+
