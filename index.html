@@ -92,7 +92,8 @@
              <div class="bg-black bg-opacity-70 p-8 md:p-12 rounded-2xl shadow-2xl relative z-10 border-t-4 border-amber-400">
                 <h1 id="landing-title" class="title-font text-5xl md:text-7xl font-bold mb-4 text-amber-300">Welcome</h1>
                 <p class="text-xl md:text-2xl text-gray-200 mb-8">Jaipur's Finest Rooftop Experience.</p>
-                <button data-action="showPage" data-page="welcome" class="bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-lg py-4 px-10 rounded-full shadow-lg transition-transform duration-300 btn-pulse active:scale-95">
+                <!-- Action to enter app, which handles audio init and navigation -->
+                <button data-action="enterApp" class="bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-lg py-4 px-10 rounded-full shadow-lg transition-transform duration-300 btn-pulse active:scale-95">
                     ENTER
                 </button>
             </div>
@@ -212,10 +213,9 @@
         function initAudio() {
             if (isAudioInitialized || !window.Tone) return;
             try {
-                // Initialize Tone.js and set up one synth for all UI feedback
+                // We call Tone.start() here to ensure the context starts on the first click.
                 Tone.start();
-                isAudioInitialized = true;
-
+                
                 // FM Synth for varied, professional UI sounds (click, confirm, error)
                 interactionSynth = new Tone.FMSynth({
                     modulationIndex: 8,
@@ -224,7 +224,8 @@
                     modulationEnvelope: { attack: 0.005, decay: 0.05, sustain: 0, release: 0.05 }
                 }).toDestination();
                 
-                console.log("Audio initialized successfully.");
+                isAudioInitialized = true;
+                console.log("Audio context resumed and components created.");
                 
             } catch (e) {
                 console.warn("Audio initialization failed. Sounds will be disabled.", e);
@@ -233,33 +234,37 @@
 
         /**
          * Plays a different sound based on the interaction type.
-         * @param {string} type 'nav', 'add', 'remove', 'confirm', 'error'
+         * @param {string} type 'nav', 'add', 'remove', 'confirm', 'error', 'click'
          */
         function playInteractionSound(type) {
+            // Play only if initialization was successful
             if (!isAudioInitialized || !interactionSynth) return;
 
             let freq, duration, modIndex;
 
             switch(type) {
-                case 'nav': // Standard button tap/navigation
+                case 'nav': // Switching tabs/pages
                     freq = 800; duration = '16n'; modIndex = 8;
                     break;
-                case 'add': // Adding item to cart
+                case 'add': // Adding item to cart (successful action)
                     freq = 550; duration = '8n'; modIndex = 4;
                     break;
                 case 'remove': // Removing item from cart
                     freq = 300; duration = '8n'; modIndex = 12;
                     break;
-                case 'confirm': // Placing order/alert OK
+                case 'confirm': // Placing order/alert OK/Game Win
                     // A quick rising pitch for success
                     interactionSynth.triggerAttackRelease(
                         ['C5', 'G5', 'C6'], '16n', Tone.now(), 0.7
                     );
                     return;
-                case 'error': // Alert/Validation error
+                case 'error': // Alert/Validation error/Game Loss
                     freq = 150; duration = '8n'; modIndex = 20;
                     break;
-                default: // Default fallback sound
+                case 'click': // Generic button/game click (default fallback)
+                    freq = 600; duration = '32n'; modIndex = 6;
+                    break;
+                default:
                     freq = 600; duration = '32n'; modIndex = 6;
                     break;
             }
@@ -334,12 +339,19 @@
         
         // --- CORE APP LOGIC ---
         function showPage(pageId) {
-            // Robust cleanup for games and intervals
-            if (state.gameInterval) { clearInterval(state.gameInterval); state.gameInterval = null; }
-            if (typeof state.gameCleanup === 'function') { state.gameCleanup(); }
+            // **FIX 1: Robust Game Cleanup before page switch**
+            // Ensure all previous game resources are stopped when leaving the page.
+            if (state.gameInterval) { 
+                cancelAnimationFrame(state.gameInterval); 
+                state.gameInterval = null; 
+            }
+            if (typeof state.gameCleanup === 'function') { 
+                state.gameCleanup(); 
+            }
             state.gameCleanup = null;
+            
             if (state.slideshowInterval) { clearInterval(state.slideshowInterval); state.slideshowInterval = null; }
-            state.activeGame = null;
+            // Note: state.activeGame is NOT reset here so it can be reloaded when returning to the games page.
             
             // Stop video/audio when switching away from welcome
             const videoEl = $('#ai-host-video');
@@ -412,6 +424,12 @@
 
         // --- EVENT HANDLERS (Actions) ---
         const actions = {
+            // FIX: This action now correctly navigates and calls initAudio
+            enterApp: el => {
+                initAudio(); // Call init audio on first interaction
+                playInteractionSound('nav');
+                showPage('welcome');
+            },
             showPage: el => {
                 playInteractionSound('nav');
                 showPage(el.dataset.page);
@@ -602,20 +620,25 @@
         
         // --- INITIALIZATION ---
         $('#app').addEventListener('click', e => {
-            initAudio(); // Initialize audio context on the first click/touch
+            // FIX: Initialize audio components on ANY first click, then proceed with the action.
+            if (!isAudioInitialized) {
+                initAudio();
+            }
             
             const actionElement = e.target.closest('[data-action]');
             if (actionElement) {
                 const action = actionElement.dataset.action;
+                
+                // Call the specific action handler defined in the actions object
                 if (actions[action]) {
                     actions[action](actionElement);
                 } else {
-                    // Play default tap sound for general interactive elements not covered in actions
-                    playInteractionSound('nav');
+                    // Fallback for general buttons
+                    playInteractionSound('click');
                 }
             } else {
-                 // Play default tap sound for any other click in the app
-                 playInteractionSound('nav');
+                 // For general clicks (like clicking empty space), use a generic click sound.
+                 playInteractionSound('click');
             }
         });
 
@@ -815,9 +838,16 @@
         
         function loadGame(gameName) { 
             // 1. Cleanup previous game
-            if (state.gameInterval) { clearInterval(state.gameInterval); state.gameInterval = null; }
-            if (typeof state.gameCleanup === 'function') { state.gameCleanup(); }
-            state.gameCleanup = null;
+            // Use cancelAnimationFrame for rAF based games (like Whack-a-Mole)
+            if (state.gameInterval) { 
+                cancelAnimationFrame(state.gameInterval);
+                state.gameInterval = null; 
+            }
+            if (typeof state.gameCleanup === 'function') { 
+                // Call cleanup function (removes event listeners)
+                state.gameCleanup(); 
+            }
+            state.gameCleanup = null; // Clear state variable after cleanup
             
             // 2. Set canvas size dynamically and responsively
             const canvas = $('#game-canvas'); 
@@ -876,7 +906,7 @@
                 const coords = getEventCoords(e),C=Math.floor(coords.x/s),R=Math.floor(coords.y/s),i=R*3+C;
                 if(b[i]===''){
                     b[i]=p;
-                    playInteractionSound('nav');
+                    playInteractionSound('click'); // Game move click
                     const W=w();
                     if(W){
                         g=true;
@@ -946,7 +976,7 @@
                 
                 if(card && flipped.length < 2){
                     card.isFlipped = true;
-                    playInteractionSound('nav'); 
+                    playInteractionSound('click'); // Game move click
                     flipped.push(card);
                     
                     if(flipped.length === 2){
@@ -1077,12 +1107,16 @@
                     gameOver = true;
                     showCustomAlert(`Time's up! Your final score: ${score}. Tap OK to restart.`);
                     cancelAnimationFrame(state.gameInterval); 
-                    state.gameCleanup(); 
+                    // This is the safety check we confirmed in the last fix.
+                    if (typeof state.gameCleanup === 'function') {
+                        state.gameCleanup(); 
+                    }
                     return;
                 }
                 
                 update(); 
                 draw();
+                // Assign the new frame ID to state.gameInterval for cleanup
                 state.gameInterval = requestAnimationFrame(() => gameLoop(now));
             }
 
@@ -1090,6 +1124,8 @@
                 e.preventDefault(); 
                 if (gameOver) return;
                 const coords = getEventCoords(e);
+                // Play generic click sound when interacting with the game canvas
+                playInteractionSound('click');
                 moles.forEach(mole => mole.checkHit(coords.x, coords.y));
             }
             
@@ -1102,6 +1138,7 @@
                 c.removeEventListener('touchstart', handleClick);
             };
             
+            // Start the initial game loop
             gameLoop();
             $('#game-instructions').textContent = 'Tap the moles as they pop up! Total time: 30 seconds.';
         }
