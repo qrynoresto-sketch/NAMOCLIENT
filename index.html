@@ -28,8 +28,8 @@
         /* Keyframes */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.7); /* Orange-600 shadow */ }
-            50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(234, 88, 12, 0); }
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(251, 191, 36, 0); }
         }
         @keyframes jiggle {
             0%, 100% { transform: rotate(-1deg) translateY(-1px); }
@@ -63,7 +63,7 @@
         .animate-on-scroll { opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; will-change: transform, opacity; }
         .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
         
-        .loader { width: 50px; height: 50px; border: 5px solid #4b5563; border-bottom-color: #f97316; /* Orange-500 */ border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        .loader { width: 50px; height: 50px; border: 5px solid #4b5563; border-bottom-color: #fbbf24; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Scrollbar styles */
@@ -73,16 +73,15 @@
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         
         /* Game specific styles */
-        #game-canvas { border: 2px solid #57534e; /* Stone-700 */ background-color: #292524; /* Stone-900 */ cursor: pointer; max-width: 512px; margin: 0 auto; }
-        .game-btn.game-active { border-color: #f97316 !important; /* Orange-500 */ background-color: #44403c; /* Stone-700 */ color: #f97316; }
+        #game-canvas { border: 2px solid #4b5563; border-radius: 8px; background-color: #111827; cursor: pointer; max-width: 512px; margin: 0 auto; }
+        .game-btn.game-active { border-color: #fbbf24 !important; background-color: #374151; color: #fbbf24; }
         
         /* Category navigator style */
         .category-navigator::-webkit-scrollbar { display: none; }
         .category-navigator { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<!-- Theme Change: Deep warm colors (stone-900, red-950) -->
-<body class="bg-gradient-to-br from-stone-900 via-zinc-950 to-red-950 text-white h-full overflow-hidden">
+<body class="bg-gradient-to-br from-slate-900 via-black to-black text-white h-full overflow-hidden">
 
     <!-- App Container -->
     <div id="app" class="h-full">
@@ -90,13 +89,11 @@
         <!-- SLIDESHOW LANDING PAGE -->
         <div id="page-landing" class="page h-full flex flex-col justify-center items-center text-center p-8 relative">
             <div id="slideshow-container" class="absolute inset-0 z-0"></div>
-             <!-- UI Element Change: Use darker, warmer stone/zinc for container -->
-             <div class="bg-zinc-900 bg-opacity-80 p-8 md:p-12 rounded-2xl shadow-2xl relative z-10 border-t-4 border-orange-500">
-                <!-- Text Color Change: Use rich orange accent -->
-                <h1 id="landing-title" class="title-font text-5xl md:text-7xl font-bold mb-4 text-orange-400">Welcome</h1>
+             <div class="bg-black bg-opacity-70 p-8 md:p-12 rounded-2xl shadow-2xl relative z-10 border-t-4 border-amber-400">
+                <h1 id="landing-title" class="title-font text-5xl md:text-7xl font-bold mb-4 text-amber-300">Welcome</h1>
                 <p class="text-xl md:text-2xl text-gray-200 mb-8">Jaipur's Finest Rooftop Experience.</p>
-                <!-- Button Color Change: Use rich orange accent -->
-                <button data-action="enterApp" class="bg-orange-500 hover:bg-orange-600 text-stone-900 font-bold text-lg py-4 px-10 rounded-full shadow-lg transition-transform duration-300 btn-pulse active:scale-95">
+                <!-- Action to enter app, which handles audio init and navigation -->
+                <button data-action="enterApp" class="bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-lg py-4 px-10 rounded-full shadow-lg transition-transform duration-300 btn-pulse active:scale-95">
                     ENTER
                 </button>
             </div>
@@ -104,63 +101,56 @@
 
         <!-- AI HOST WELCOME PAGE -->
         <div id="page-welcome" class="page hidden h-full flex flex-col justify-center items-center p-4">
-             <!-- UI Element Change: Use darker, warmer stone/zinc for container/table info -->
-             <div id="table-info" class="absolute top-4 right-4 bg-stone-800 text-orange-400 font-semibold px-4 py-2 rounded-lg text-sm shadow-lg">Table: Loading...</div>
+             <div id="table-info" class="absolute top-4 right-4 bg-gray-800 text-amber-300 font-semibold px-4 py-2 rounded-lg text-sm shadow-lg">Table: Loading...</div>
             <div class="text-center">
-                <!-- Border/Background Change -->
-                <div class="w-48 h-48 md:w-64 md:h-64 mx-auto mb-6 rounded-2xl overflow-hidden bg-stone-800 shadow-2xl border-4 border-orange-400 transition-transform duration-500 hover:scale-105 relative">
+                <div class="w-48 h-48 md:w-64 md:h-64 mx-auto mb-6 rounded-2xl overflow-hidden bg-gray-800 shadow-2xl border-4 border-amber-300 transition-transform duration-500 hover:scale-105 relative">
                     <!-- Intro Video element - plays native audio -->
                     <video id="ai-host-video" class="w-full h-full object-cover absolute top-0 left-0" playsinline></video>
                     <!-- Static Image element - shown after video ends -->
                     <img id="ai-host-static-image" src="" alt="AI Host" class="w-full h-full object-cover hidden absolute top-0 left-0">
                 </div>
-                <!-- Text Color Change: Use rich orange accent -->
-                <h2 class="title-font text-3xl md:text-4xl font-bold mb-2 text-orange-400">Welcome!</h2>
+                <h2 class="title-font text-3xl md:text-4xl font-bold mb-2 text-amber-300">Welcome!</h2>
                 <p id="welcome-message" class="text-gray-300 text-lg mb-8 max-w-md mx-auto">I am your digital waiter, here to serve you!</p>
             </div>
             <div class="grid grid-cols-3 sm:grid-cols-5 gap-4 w-full max-w-4xl">
-                <!-- Navigation Buttons (Stone-800 background, Orange-400 icons) -->
-                <button data-action="showPage" data-page="menu" class="group crazy-hover flex flex-col items-center justify-center bg-stone-800 hover:bg-orange-500 hover:text-stone-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-orange-400 group-hover:text-stone-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><span class="font-semibold pointer-events-none text-sm">Menu</span></button>
-                <button data-action="showPage" data-page="games" class="group crazy-hover flex flex-col items-center justify-center bg-stone-800 hover:bg-orange-500 hover:text-stone-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-orange-400 group-hover:text-stone-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 9.5l-5 5m0-5l5 5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-semibold pointer-events-none text-sm">Games</span></button>
-                <button data-action="showPage" data-page="offers" class="group crazy-hover flex flex-col items-center justify-center bg-stone-800 hover:bg-orange-500 hover:text-stone-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-orange-400 group-hover:text-stone-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="font-semibold pointer-events-none text-sm">Offers</span></button>
-                <button data-action="showPage" data-page="review" class="group crazy-hover flex flex-col items-center justify-center bg-stone-800 hover:bg-orange-500 hover:text-stone-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-orange-400 group-hover:text-stone-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span class="font-semibold pointer-events-none text-sm">Review</span></button>
-                <button data-action="showPage" data-page="faq" class="group crazy-hover flex flex-col items-center justify-center bg-stone-800 hover:bg-orange-500 hover:text-stone-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-orange-400 group-hover:text-stone-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span class="font-semibold pointer-events-none text-sm">FAQ</span></button>
+                <!-- Navigation Buttons -->
+                <button data-action="showPage" data-page="menu" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><span class="font-semibold pointer-events-none text-sm">Menu</span></button>
+                <button data-action="showPage" data-page="games" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 9.5l-5 5m0-5l5 5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-semibold pointer-events-none text-sm">Games</span></button>
+                <button data-action="showPage" data-page="offers" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="font-semibold pointer-events-none text-sm">Offers</span></button>
+                <button data-action="showPage" data-page="review" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span class="font-semibold pointer-events-none text-sm">Review</span></button>
+                <button data-action="showPage" data-page="faq" class="group crazy-hover flex flex-col items-center justify-center bg-gray-800 hover:bg-amber-400 hover:text-gray-900 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95"><svg class="w-8 h-8 mb-2 text-amber-300 group-hover:text-gray-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span class="font-semibold pointer-events-none text-sm">FAQ</span></button>
             </div>
         </div>
         
         <!-- MENU PAGE -->
         <div id="page-menu" class="page hidden h-full flex flex-col p-0">
-             <!-- UI Element Change: Use darker, warmer stone/zinc for header -->
-             <header class="flex items-center justify-between p-4 bg-zinc-900/80 backdrop-blur-sm sticky top-0 z-20 shadow-md">
-                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-stone-700 active:scale-90 transition-transform"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <h2 class="title-font text-2xl font-bold text-orange-400">Our Menu</h2>
-                <div id="table-info-menu" class="bg-stone-800 text-orange-400 font-semibold px-3 py-1.5 rounded-lg text-sm">Table: ...</div>
+             <header class="flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-20 shadow-md">
+                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700 active:scale-90 transition-transform"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="title-font text-2xl font-bold text-amber-300">Our Menu</h2>
+                <div id="table-info-menu" class="bg-gray-800 text-amber-300 font-semibold px-3 py-1.5 rounded-lg text-sm">Table: ...</div>
             </header>
-            <nav id="category-navigator-container" class="sticky top-[72px] bg-zinc-900 z-20 p-2 shadow-md">
+            <nav id="category-navigator-container" class="sticky top-[72px] bg-slate-900 z-20 p-2 shadow-md">
                 <div id="category-navigator" class="category-navigator flex items-center gap-3 overflow-x-auto whitespace-nowrap"></div>
             </nav>
             <div id="menu-content" class="flex-grow overflow-y-auto pb-24 px-4 space-y-4">
                  <div class="flex justify-center items-center h-full"><div class="loader"></div></div>
             </div>
             <div class="absolute bottom-6 right-6 z-30">
-                <!-- Button Color Change: Use rich orange accent -->
-                <button id="cart-button" data-action="toggleCart" class="relative bg-orange-500 hover:bg-orange-600 text-stone-900 font-bold p-4 rounded-full shadow-2xl transition-transform transform hover:scale-110 duration-300 active:scale-100"><svg class="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg><span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full hidden">0</span></button>
+                <button id="cart-button" data-action="toggleCart" class="relative bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold p-4 rounded-full shadow-2xl transition-transform transform hover:scale-110 duration-300 active:scale-100"><svg class="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg><span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full hidden">0</span></button>
             </div>
         </div>
         
         <!-- GAMES PAGE -->
         <div id="page-games" class="page hidden h-full flex flex-col p-0">
-            <!-- UI Element Change: Use darker, warmer stone/zinc for header -->
-            <header class="flex items-center p-4 bg-zinc-900 sticky top-0 z-20 shadow-md">
-                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-stone-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <h2 class="title-font text-2xl font-bold text-orange-400 flex-grow text-center">Games</h2>
+            <header class="flex items-center p-4 bg-slate-900 sticky top-0 z-20 shadow-md">
+                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Games</h2>
             </header>
             <div class="flex-grow overflow-y-auto p-6 flex flex-col items-center">
                 <div id="game-selector" class="flex flex-wrap justify-center gap-3 mb-6">
-                    <!-- Button Border/Hover Color Change: Use rich orange accent -->
-                    <button data-action="loadGame" data-game="tic-tac-toe" class="game-btn border-2 border-stone-700 text-gray-300 hover:border-orange-500 px-4 py-2 rounded-xl transition-colors">Tic-Tac-Toe</button>
-                    <button data-action="loadGame" data-game="whack-a-mole" class="game-btn border-2 border-stone-700 text-gray-300 hover:border-orange-500 px-4 py-2 rounded-xl transition-colors">Whack-A-Mole</button>
-                    <button data-action="loadGame" data-game="memory" class="game-btn border-2 border-stone-700 text-gray-300 hover:border-orange-500 px-4 py-2 rounded-xl transition-colors">Memory Game</button>
+                    <button data-action="loadGame" data-game="tic-tac-toe" class="game-btn border-2 border-gray-600 text-gray-300 hover:border-amber-400 px-4 py-2 rounded-xl transition-colors">Tic-Tac-Toe</button>
+                    <button data-action="loadGame" data-game="whack-a-mole" class="game-btn border-2 border-gray-600 text-gray-300 hover:border-amber-400 px-4 py-2 rounded-xl transition-colors">Whack-A-Mole</button>
+                    <button data-action="loadGame" data-game="memory" class="game-btn border-2 border-gray-600 text-gray-300 hover:border-amber-400 px-4 py-2 rounded-xl transition-colors">Memory Game</button>
                 </div>
                 <div class="w-full max-w-lg aspect-square flex justify-center items-center">
                     <canvas id="game-canvas" class="w-full max-w-full aspect-square"></canvas>
@@ -170,91 +160,22 @@
         </div>
 
         <!-- INVOICE PAGE -->
-        <div id="page-invoice" class="page hidden h-full flex flex-col p-0">
-            <!-- UI Element Change: Use darker, warmer stone/zinc for header -->
-            <header class="flex items-center p-4 bg-zinc-900 sticky top-0 z-20 shadow-md">
-                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-stone-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <h2 class="title-font text-2xl font-bold text-orange-400 flex-grow text-center">Order Summary</h2>
-            </header>
-            <div id="invoice-content" class="flex-grow overflow-y-auto p-6"></div>
-        </div>
+        <div id="page-invoice" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900 sticky top-0 z-20 shadow-md"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Order Summary</h2></header><div id="invoice-content" class="flex-grow overflow-y-auto p-6"></div></div>
         
         <!-- REVIEW PAGE -->
-        <div id="page-review" class="page hidden h-full flex flex-col p-0">
-            <!-- UI Element Change: Use darker, warmer stone/zinc for header -->
-            <header class="flex items-center p-4 bg-zinc-900">
-                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-stone-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <h2 class="title-font text-2xl font-bold text-orange-400 flex-grow text-center">Review & Suggestions</h2>
-            </header>
-            <div class="flex-grow overflow-y-auto p-6 space-y-4">
-                <p class="text-center text-gray-300">We value your feedback! Tell us about your experience.</p>
-                <div class="space-y-4 max-w-lg mx-auto">
-                    <!-- Input Color Change: Use stone-800 background, orange-400 focus -->
-                    <input id="review-name" type="text" placeholder="Your Name (Optional)" class="w-full bg-stone-800 p-3 rounded-xl border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-400" maxlength="50">
-                    <textarea id="review-content" placeholder="Your experience, suggestions, etc... (Min 10 characters)" rows="5" class="w-full bg-stone-800 p-3 rounded-xl border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-400"></textarea>
-                    <!-- Button Color Change: Use rich orange accent -->
-                    <button data-action="submitReview" class="w-full bg-orange-500 hover:bg-orange-600 text-stone-900 font-bold py-3 rounded-xl transition-colors active:scale-95">Submit Review</button>
-                </div>
-            </div>
-        </div>
+        <div id="page-review" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Review & Suggestions</h2></header><div class="flex-grow overflow-y-auto p-6 space-y-4"><p class="text-center text-gray-300">We value your feedback! Tell us about your experience.</p><div class="space-y-4 max-w-lg mx-auto"><input id="review-name" type="text" placeholder="Your Name (Optional)" class="w-full bg-gray-800 p-3 rounded-xl border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400" maxlength="50"><textarea id="review-content" placeholder="Your experience, suggestions, etc... (Min 10 characters)" rows="5" class="w-full bg-gray-800 p-3 rounded-xl border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400"></textarea><button data-action="submitReview" class="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-3 rounded-xl transition-colors active:scale-95">Submit Review</button></div></div></div>
         
         <!-- OFFERS PAGE -->
-        <div id="page-offers" class="page hidden h-full flex flex-col p-0">
-            <!-- UI Element Change: Use darker, warmer stone/zinc for header -->
-            <header class="flex items-center p-4 bg-zinc-900">
-                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-stone-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <h2 class="title-font text-2xl font-bold text-orange-400 flex-grow text-center">Special Offers</h2>
-            </header>
-            <div id="offers-content" class="flex-grow p-6 space-y-4">
-                <div class="flex justify-center items-center h-full"><div class="loader"></div></div>
-            </div>
-        </div>
+        <div id="page-offers" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">Special Offers</h2></header><div id="offers-content" class="flex-grow p-6 space-y-4"><div class="flex justify-center items-center h-full"><div class="loader"></div></div></div></div>
         
         <!-- FAQ PAGE -->
-        <div id="page-faq" class="page hidden h-full flex flex-col p-0">
-            <!-- UI Element Change: Use darker, warmer stone/zinc for header -->
-            <header class="flex items-center p-4 bg-zinc-900">
-                <button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-stone-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <h2 class="title-font text-2xl font-bold text-orange-400 flex-grow text-center">About & FAQ</h2>
-            </header>
-            <div class="flex-grow p-6 space-y-4">
-                <!-- Box Color Change: Use stone-800 background -->
-                <div class="bg-stone-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-orange-400">What kind of restaurant is this?</h3><p id="faq-restaurant-name" class="text-gray-400 mt-1"></p></div>
-                <div class="bg-stone-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-orange-400">Where are you located?</h3><p class="text-gray-400 mt-1">You can find us at the Rooftop, 4th Floor, The Terrace, B-40, Gautam Marg, Vaishali Nagar, Jaipur.</p></div>
-                <div class="bg-stone-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-orange-400">Do you take reservations?</h3><p class="text-gray-400 mt-1">Yes, we highly recommend making a reservation, especially for weekends. You can call us or book through our official website.</p></div>
-                <div class="bg-stone-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-orange-400">Is there parking available?</h3><p class="text-gray-400 mt-1">Yes, valet parking is available for all our guests.</p></div>
-            </div>
-        </div>
+        <div id="page-faq" class="page hidden h-full flex flex-col p-0"><header class="flex items-center p-4 bg-slate-900"><button data-action="showPage" data-page="welcome" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><h2 class="title-font text-2xl font-bold text-amber-300 flex-grow text-center">About & FAQ</h2></header><div class="flex-grow p-6 space-y-4"><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">What kind of restaurant is this?</h3><p id="faq-restaurant-name" class="text-gray-400 mt-1"></p></div><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">Where are you located?</h3><p class="text-gray-400 mt-1">You can find us at the Rooftop, 4th Floor, The Terrace, B-40, Gautam Marg, Vaishali Nagar, Jaipur.</p></div><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">Do you take reservations?</h3><p class="text-gray-400 mt-1">Yes, we highly recommend making a reservation, especially for weekends. You can call us or book through our official website.</p></div><div class="bg-gray-800 p-4 rounded-lg"><h3 class="font-semibold text-lg text-amber-300">Is there parking available?</h3><p class="text-gray-400 mt-1">Yes, valet parking is available for all our guests.</p></div></div></div>
         
         <!-- Cart Modal -->
-        <div id="cart-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-40 flex items-center justify-center p-4">
-            <!-- Modal Box Color Change: Use stone-800 background -->
-            <div class="bg-stone-800 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl modal-content">
-                <div class="flex justify-between items-center p-4 border-b border-stone-700">
-                    <h3 class="title-font text-xl font-bold text-orange-400">Your Order</h3>
-                    <button data-action="toggleCart" class="p-2 rounded-full hover:bg-stone-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                </div>
-                <div id="cart-items" class="flex-grow overflow-y-auto p-4 space-y-3"></div>
-                <div class="p-4 border-t border-stone-700">
-                    <div class="flex justify-between items-center font-bold text-lg mb-4">
-                        <span class="text-gray-300">Total:</span>
-                        <span id="cart-total" class="text-orange-400">₹0.00</span>
-                    </div>
-                    <!-- Button Color Change: Use rich orange accent -->
-                    <button id="place-order-btn" data-action="placeOrder" class="w-full bg-orange-500 hover:bg-orange-600 text-stone-900 font-bold py-3 rounded-lg transition-colors disabled:bg-stone-700 disabled:cursor-not-allowed active:scale-95">Place Order</button>
-                </div>
-            </div>
-        </div>
+        <div id="cart-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-40 flex items-center justify-center p-4"><div class="bg-gray-800 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl modal-content"><div class="flex justify-between items-center p-4 border-b border-gray-700"><h3 class="title-font text-xl font-bold text-amber-300">Your Order</h3><button data-action="toggleCart" class="p-2 rounded-full hover:bg-gray-700"><svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="cart-items" class="flex-grow overflow-y-auto p-4 space-y-3"></div><div class="p-4 border-t border-gray-700"><div class="flex justify-between items-center font-bold text-lg mb-4"><span class="text-gray-300">Total:</span><span id="cart-total" class="text-amber-300">₹0.00</span></div><button id="place-order-btn" data-action="placeOrder" class="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-3 rounded-lg transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed active:scale-95">Place Order</button></div></div></div>
                 
         <!-- Custom Alert Modal -->
-        <div id="alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-            <!-- Modal Box Color Change: Use stone-800 background -->
-            <div class="bg-stone-800 rounded-2xl w-full max-w-sm p-8 text-center shadow-2xl modal-content">
-                <p id="alert-message" class="text-lg mb-6"></p>
-                <!-- Button Color Change: Use rich orange accent -->
-                <button data-action="hideCustomAlert" class="bg-orange-500 hover:bg-orange-600 text-stone-900 font-bold py-2 px-8 rounded-lg active:scale-95">OK</button>
-            </div>
-        </div>
+        <div id="alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4"><div class="bg-gray-800 rounded-2xl w-full max-w-sm p-8 text-center shadow-2xl modal-content"><p id="alert-message" class="text-lg mb-6"></p><button data-action="hideCustomAlert" class="bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-2 px-8 rounded-lg active:scale-95">OK</button></div></div>
     </div>
 
     <script type="module">
@@ -374,8 +295,7 @@
                         <button data-action="changeQuantity" data-item-id="${itemId}" data-amount="1" class="w-10 h-10 bg-gray-600 rounded-full font-bold text-2xl flex items-center justify-center active:scale-90 transition-transform">+</button>
                     </div>`;
             } else {
-                // Button Color Change: Use rich orange accent
-                container.innerHTML = `<button data-action="addToOrder" data-item-id="${itemId}" class="bg-orange-500 text-stone-900 font-bold px-6 py-2 rounded-lg hover:bg-orange-600 transition-transform transform hover:scale-105 active:scale-95">Add</button>`;
+                container.innerHTML = `<button data-action="addToOrder" data-item-id="${itemId}" class="bg-amber-400 text-gray-900 font-bold px-6 py-2 rounded-lg hover:bg-amber-500 transition-transform transform hover:scale-105 active:scale-95">Add</button>`;
             }
         }
         
@@ -392,15 +312,15 @@
                 total += menuItem.price * orderItem.quantity;
                 count += orderItem.quantity;
                 return `
-                    <div class="flex items-center justify-between bg-zinc-700 p-3 rounded-xl border border-stone-600">
+                    <div class="flex items-center justify-between bg-gray-700 p-3 rounded-xl border border-gray-600">
                         <div>
                             <p class="font-semibold">${menuItem.name}</p>
                             <p class="text-sm text-gray-400">₹${menuItem.price} x ${orderItem.quantity} = ₹${(menuItem.price * orderItem.quantity).toFixed(2)}</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button data-action="changeQuantity" data-item-id="${orderItem.id}" data-amount="-1" class="w-7 h-7 bg-stone-700 rounded-full font-bold flex items-center justify-center active:scale-90 transition-transform">-</button>
+                            <button data-action="changeQuantity" data-item-id="${orderItem.id}" data-amount="-1" class="w-7 h-7 bg-gray-600 rounded-full font-bold flex items-center justify-center active:scale-90 transition-transform">-</button>
                             <span class="font-semibold w-5 text-center">${orderItem.quantity}</span>
-                            <button data-action="changeQuantity" data-item-id="${orderItem.id}" data-amount="1" class="w-7 h-7 bg-stone-700 rounded-full font-bold flex items-center justify-center active:scale-90 transition-transform">+</button>
+                            <button data-action="changeQuantity" data-item-id="${orderItem.id}" data-amount="1" class="w-7 h-7 bg-gray-600 rounded-full font-bold flex items-center justify-center active:scale-90 transition-transform">+</button>
                         </div>
                     </div>`;
             }).join('');
@@ -479,24 +399,23 @@
                     const imageUrl = item.image_url || `https://placehold.co/600x400/374151/ffffff?text=${encodeURIComponent(item.name).replace(/\%20/g, '+')}`;
                     
                     return `
-                        <!-- UI Element Change: Use stone-800 background, orange accent -->
-                        <div class="bg-stone-800 rounded-2xl overflow-hidden shadow-lg flex flex-col relative animate-on-scroll transition-all duration-300 hover:shadow-orange-500/10 hover:shadow-2xl hover:-translate-y-1">
+                        <div class="bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col relative animate-on-scroll transition-all duration-300 hover:shadow-amber-500/10 hover:shadow-2xl hover:-translate-y-1">
                             <img src="${imageUrl}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/374151/ffffff?text=Image+Missing';" alt="${item.name}" class="w-full h-48 object-cover" loading="lazy" decoding="async">
                             <div class="p-4 flex flex-col flex-grow">
                                 <h4 class="font-bold text-xl text-white">${item.name}</h4>
                                 <p class="text-gray-400 text-sm my-2 flex-grow">${item.description || 'A delicious dish or beverage.'}</p>
                                 <div class="flex justify-between items-center mt-4">
-                                    <span class="font-bold text-2xl text-orange-400">₹${item.price.toFixed(2)}</span>
+                                    <span class="font-bold text-2xl text-amber-300">₹${item.price.toFixed(2)}</span>
                                     <div id="controls-${item.id}"></div>
                                 </div>
                             </div>
                         </div>`;
                 }).join('');
-                return `<div id="category-${category.id}"><h3 class="title-font text-3xl font-bold text-orange-400 pt-6 pb-4">${category.name}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-6">${itemsHtml}</div></div>`;
+                return `<div id="category-${category.id}"><h3 class="title-font text-3xl font-bold text-amber-300 pt-6 pb-4">${category.name}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-6">${itemsHtml}</div></div>`;
             }).join('');
             
-            // Render category navigation links (stone-800 background, orange-500 hover)
-            categoryNav.innerHTML = data.map(c => c.items.filter(i=>i.is_available).length > 0 ? `<a href="#category-${c.id}" class="px-4 py-2 bg-stone-800 rounded-full text-sm font-semibold hover:bg-orange-500 hover:text-stone-900 transition-colors active:scale-95">${c.name}</a>` : '').join('');
+            // Render category navigation links
+            categoryNav.innerHTML = data.map(c => c.items.filter(i=>i.is_available).length > 0 ? `<a href="#category-${c.id}" class="px-4 py-2 bg-gray-800 rounded-full text-sm font-semibold hover:bg-amber-400 hover:text-gray-900 transition-colors active:scale-95">${c.name}</a>` : '').join('');
             
             menuContent.innerHTML = menuHtml;
             state.menuItemsMap.forEach(item => renderMenuItemControls(item.id));
@@ -615,12 +534,10 @@
             }
 
             offersContent.innerHTML = data.map(offer => `
-                <!-- Box Color Change: Use stone-800 background -->
-                <div class="bg-stone-800 rounded-xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center animate-on-scroll">
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center animate-on-scroll">
                     <img src="${offer.image_url || 'https://placehold.co/600x400/4a5568/ffffff?text=Offer'}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/4a5568/ffffff?text=Offer';" class="w-full md:w-1/3 h-48 md:h-full object-cover">
                     <div class="p-6">
-                        <!-- Text Color Change: Use rich orange accent -->
-                        <h3 class="font-bold text-xl text-orange-400">${offer.title}</h3>
+                        <h3 class="font-bold text-xl text-amber-300">${offer.title}</h3>
                         <p class="text-gray-300 mt-2">${offer.description}</p>
                     </div>
                 </div>
@@ -683,12 +600,10 @@
                         // Autoplay worked - Unmute the video for its native audio
                         videoEl.muted = false;
                     }).catch(error => {
-                        // FIX: Added a timeout delay before calling pause/switch to static image
-                        console.error("Autoplay failed, attempting fallback:", error);
-                        setTimeout(() => {
-                            videoEl.muted = true; 
-                            switchImage();
-                        }, 50); // Small delay allows the asynchronous play request to resolve/fail fully
+                        // Autoplay failed (e.g., user interaction required). Fallback to silent video/image.
+                        console.error("Autoplay failed, showing static image:", error);
+                        videoEl.muted = true; // Keep muted if playback fails
+                        switchImage();
                     });
                 } else {
                     // Fallback if play() returns nothing
@@ -807,16 +722,15 @@
         function renderInvoice(orderId, total) { 
             const itemsHtml = state.order.map(item => { 
                 const menuItem = state.menuItemsMap.get(item.id); 
-                return `<div class="flex justify-between text-gray-300 py-2 border-b border-stone-700"><span>${item.quantity} x ${menuItem.name}</span><span>₹${(item.quantity * menuItem.price).toFixed(2)}</span></div>` 
+                return `<div class="flex justify-between text-gray-300 py-2 border-b border-gray-700"><span>${item.quantity} x ${menuItem.name}</span><span>₹${(item.quantity * menuItem.price).toFixed(2)}</span></div>` 
             }).join(''); 
             
             $('#invoice-content').innerHTML = `
-                <!-- Box Color Change: Use stone-800 background, orange accent -->
-                <div class="bg-stone-800 p-6 rounded-2xl max-w-lg mx-auto shadow-2xl">
-                    <h3 class="title-font text-3xl font-bold text-center text-orange-400 mb-2">Order Confirmed!</h3>
+                <div class="bg-gray-800 p-6 rounded-2xl max-w-lg mx-auto shadow-2xl">
+                    <h3 class="title-font text-3xl font-bold text-center text-amber-300 mb-2">Order Confirmed!</h3>
                     <p class="text-center text-gray-400 mb-6">Order ID: #${orderId.substring(0, 8)} | Table: ${state.tableName}</p>
                     <div class="space-y-2 mb-6">${itemsHtml}</div>
-                    <div class="flex justify-between font-bold text-xl mt-6 pt-4 border-t-2 border-orange-500">
+                    <div class="flex justify-between font-bold text-xl mt-6 pt-4 border-t-2 border-amber-400">
                         <span>Grand Total</span>
                         <span>₹${total.toFixed(2)}</span>
                     </div>
@@ -964,7 +878,7 @@
             
             function d(){
                 x.clearRect(0,0,c.width,c.height);
-                x.strokeStyle='#57534e';x.lineWidth=5; /* Stone-700 */
+                x.strokeStyle='#4b5563';x.lineWidth=5;
                 for(let i=1;i<3;i++){
                     x.beginPath();x.moveTo(i*s,0);x.lineTo(i*s,c.height);
                     x.moveTo(0,i*s);x.lineTo(c.width,i*s);x.stroke();
@@ -972,7 +886,7 @@
                 x.font=`bold ${s*0.7}px Inter`;x.textAlign='center';x.textBaseline='middle';
                 for(let i=0;i<9;i++){
                     const X=(i%3)*s+s/2,Y=Math.floor(i/3)*s+s/2;
-                    x.fillStyle=(b[i]==='X'?'#f97316':'#a8a29e'); /* Orange-500 or Stone-400 */
+                    x.fillStyle=(b[i]==='X'?'#fbbf24':'#9ca3af');
                     if(b[i]) x.fillText(b[i],X,Y);
                 }
             } 
@@ -1044,8 +958,7 @@
                 x.font=`${CARD_SIZE * 0.6}px Inter`;x.textAlign='center';x.textBaseline='middle';
                 
                 cards.forEach(card=>{
-                    // Card Color Change: Stone-900 matched, Orange-500 flipped, Stone-700 default
-                    x.fillStyle=card.isMatched?'#292524':(card.isFlipped?'#f97316':'#44403c');
+                    x.fillStyle=card.isMatched?'#202c3c':(card.isFlipped?'#fbbf24':'#4b5563');
                     x.fillRect(card.x,card.y,CARD_SIZE,CARD_SIZE);
                     x.strokeStyle = '#0f172a'; x.lineWidth = 3; x.strokeRect(card.x,card.y,CARD_SIZE,CARD_SIZE);
                     
@@ -1111,15 +1024,13 @@
                     this.up = false; this.upTime = 0; this.hit = false;
                 }
                 draw() {
-                    // Draw hole
-                    x.fillStyle = '#44403c'; /* Stone-700 */ x.beginPath(); x.arc(this.x, this.y, HOLE_SIZE * 0.4, 0, Math.PI * 2); x.fill();
+                    x.fillStyle = '#2d2d2d'; x.beginPath(); x.arc(this.x, this.y, HOLE_SIZE * 0.4, 0, Math.PI * 2); x.fill();
                     
                     if (this.up) {
                         let offsetFactor = Math.min((Date.now() - this.upTime) / 200, 1);
                         let yOffset = Math.sin(offsetFactor * Math.PI) * (HOLE_SIZE / 2);
                         
-                        // Mole Color Change: Red-500 hit, Orange-500 mole
-                        x.fillStyle = this.hit ? '#ef4444' : '#f97316'; 
+                        x.fillStyle = this.hit ? '#ef4444' : '#fbbf24';
                         x.beginPath(); 
                         x.arc(this.x, this.y - yOffset, MOLE_RADIUS, 0, Math.PI * 2); 
                         x.fill();
@@ -1176,8 +1087,7 @@
                 x.clearRect(0, 0, c.width, c.height);
                 moles.forEach(mole => mole.draw());
                 
-                // Score/Time Color Change: Orange-400
-                x.fillStyle = '#fb923c'; 
+                x.fillStyle = '#fbbf24'; 
                 x.font = `${c.width * 0.05}px Inter`; 
                 x.textAlign = 'left'; 
                 x.fillText(`Score: ${score}`, c.width * 0.03, c.width * 0.07);
